@@ -36,16 +36,22 @@ function placePiece(mouseEvent) {
     let piece = document.createElement("img");
 
     let locations = findObjectCoords(mouseEvent);
+    console.log(locations)
+    // This gets how big a row should be; 24px right now hardcoded
+    let totalWidth = document.getElementById("goBoard").style.width;
+    let spacing = (totalWidth - 24) / 20;  
 
     // insert p1/p2 logic here
     piece.className = "piece";
     piece.src = "assets/white-piece.png";
-    piece.style.minWidth = "100px";
-    piece.style.minHeight = "100px";
-    let xpos = locations[0];
-    let ypos = locations[1];
+    piece.style.width = "20px";
+    piece.style.height = "20px";
     piece.style.marginLeft = "400px";
     piece.style.marginTop = "400px";
+    piece.style.position = "absolute";
+
+    piece.style.marginLeft = locations.xpos + "px";
+    piece.style.marginTop = locations.ypos + "px";
     // piece.innerHTML = html;
 
     document.getElementById("goBoard").appendChild(piece);

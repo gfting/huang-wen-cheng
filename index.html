@@ -22,10 +22,12 @@
 </head>
 <body>
 	<!-- current offset utilizing 400px by 400px: 12 px -->
-	<img id="goBoard" src="assets/blank_board.png" style="margin:30px; text-align:center; width:400px; height:400px; background-color:#ccc;">
-    <div id="objectCoords" style ="font-size: 36px; color: white;">
-    </div>
-	</img>
+	<div id="goBoard" style="width: 400px; height: 400px">
+		<img id="goBoard-img" src="assets/blank_board.png" style="text-align:center; width:400px; height:400px; background-color:#ccc; position: absolute">
+    	<div id="objectCoords" style ="font-size: 36px; color: white;"></div>
+		</img>
+	</div>
+	
 	<script src="scripts/script.js"></script>
     
 </body>
