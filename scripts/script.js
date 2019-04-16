@@ -51,4 +51,4 @@ function placePiece() {
 document.getElementById("goBoard").onmousemove = findObjectCoords;
 
 // Function that actually places the piece
-document.getElementById("goBoard").onclick = placePiece();
+document.getElementById("goBoard").onclick = placePiece;
