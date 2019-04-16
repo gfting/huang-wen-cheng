@@ -28,16 +28,27 @@ function findObjectCoords(mouseEvent)
   
   // Writing coordinates for testing
   document.getElementById("objectCoords").innerHTML = xpos + ", " + ypos;
+  return {xpos, ypos};
 }
-document.getElementById("goBoard").onmousemove = findObjectCoords;
 
-function placePiece(anchor, position, html) {
-    var p = document.getElementById(goBoard);
-    let piece = document.createElement('div');
+// Implementation of placing the piece
+function placePiece() {
+    let piece = document.createElement("img");
+
+    let locations = findObjectCoords;
+
     // insert p1/p2 logic here
     piece.className = "piece";
-    piece.innerHTML = html;
-    document.body.append(piece);
+    piece.src = "assets/black-piece.png";
+    piece.style.marginLeft = locations[0];
+    piece.style.marginTop = locations[1];
+    // piece.innerHTML = html;
 
-    positionAt(anchor, position, piece);
+    document.getElementById("goBoard").appendChild(piece);
 }
+
+// Function for testing finding object coordinates
+document.getElementById("goBoard").onmousemove = findObjectCoords;
+
+// Function that actually places the piece
+document.getElementById("goBoard").onclick = placePiece();
