@@ -32,16 +32,20 @@ function findObjectCoords(mouseEvent)
 }
 
 // Implementation of placing the piece
-function placePiece() {
+function placePiece(mouseEvent) {
     let piece = document.createElement("img");
 
-    let locations = findObjectCoords;
+    let locations = findObjectCoords(mouseEvent);
 
     // insert p1/p2 logic here
     piece.className = "piece";
-    piece.src = "assets/black-piece.png";
-    piece.style.marginLeft = locations[0];
-    piece.style.marginTop = locations[1];
+    piece.src = "assets/white-piece.png";
+    piece.style.minWidth = "100px";
+    piece.style.minHeight = "100px";
+    let xpos = locations[0];
+    let ypos = locations[1];
+    piece.style.marginLeft = "400px";
+    piece.style.marginTop = "400px";
     // piece.innerHTML = html;
 
     document.getElementById("goBoard").appendChild(piece);
