@@ -1,4 +1,9 @@
 let currentPlayer = 'white';
+var element = document.getElementById('goBoard-img');
+var positionInfo = element.getBoundingClientRect();
+var height = positionInfo.height;
+var totalWidth = positionInfo.width;
+const spacing = (totalWidth - 24) / 20;
 
 function findObjectCoords(mouseEvent) {
   let obj = document.getElementById('goBoard');
@@ -52,27 +57,43 @@ function placePiece(mouseEvent) {
   } else {
     piece.src = 'assets/black-piece.png';
   }
-  piece.style.width = '20px';
-  piece.style.height = '20px';
+  piece.style.width = '15px';
+  piece.style.height = '15px';
   piece.style.marginLeft = '400px';
   piece.style.marginTop = '400px';
   piece.style.position = 'absolute';
-
-  piece.style.marginLeft = locations.xpos + 'px';
-  piece.style.marginTop = locations.ypos + 'px';
+  const grid = getRowCol(locations.xpos, locations.ypos);
+  console.log(grid);
+  let fixedXpos = grid.row * spacing;
+  let fixedYpos = grid.col * spacing;
+  console.log(fixedXpos);
+  piece.style.marginLeft = fixedXpos + 'px';
+  piece.style.marginTop = fixedYpos + 'px';
   // piece.innerHTML = html;
 
   document.getElementById('goBoard').appendChild(piece);
 }
 
-// function getRowCol(xpos, ypos) {
-//   // This gets how big a row should be; 24px right now hardcoded lol
-//   let totalWidth = document.getElementById("goBoard").style.width;
-//   let spacing = (totalWidth - 24) / 20;
+function getRowCol(xpos, ypos) {
+  // gets the total size of the board, finds appropriate spacing
 
-//   return {row, col}
+  // finds basic column and row
+  let row = (xpos / spacing) | 0;
+  let col = (ypos / spacing) | 0;
 
-// }
+  // figures out how much it's shifted over in the column
+  let shiftX = xpos % spacing;
+  let shiftY = ypos % spacing;
+
+  // if this shift is greater than half, adds to row
+  if (shiftX > spacing / 2) {
+    row += 1;
+  }
+  if (shiftY > spacing / 2) {
+    col += 1;
+  }
+  return { row, col };
+}
 
 // Function for testing finding object coordinates
 document.getElementById('goBoard').onmousemove = findObjectCoords;
