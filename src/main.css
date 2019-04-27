@@ -30,8 +30,8 @@ h1 {
 
 #goBoard-img {
   text-align: center;
-  width: 424px;
-  height: 424px;
+  width: 400px;
+  height: 400px;
   background-color: #ccc;
   position: absolute;
 }

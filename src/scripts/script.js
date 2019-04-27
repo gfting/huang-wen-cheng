@@ -1,9 +1,15 @@
 let currentPlayer = 'white';
-var element = document.getElementById('goBoard-img');
-var positionInfo = element.getBoundingClientRect();
-var height = positionInfo.height;
-var totalWidth = positionInfo.width;
+// gets the total size of the board, finds appropriate spacing
+const element = document.getElementById('goBoard-img');
+const positionInfo = element.getBoundingClientRect();
+const height = positionInfo.height;
+const totalWidth = positionInfo.width;
 const spacing = (totalWidth - 24) / 20;
+// Create 2-D array to hold all values
+var totalBoard = new Array(20);
+for (i = 0; i < totalBoard.length; i++) {
+  totalBoard[i] = new Array(20);
+}
 
 function findObjectCoords(mouseEvent) {
   let obj = document.getElementById('goBoard');
@@ -48,7 +54,6 @@ function placePiece(mouseEvent) {
   const piece = document.createElement('img');
 
   const locations = findObjectCoords(mouseEvent);
-  console.log(locations);
 
   // insert p1/p2 logic here
   piece.className = 'piece';
@@ -63,10 +68,14 @@ function placePiece(mouseEvent) {
   piece.style.marginTop = '400px';
   piece.style.position = 'absolute';
   const grid = getRowCol(locations.xpos, locations.ypos);
-  console.log(grid);
-  let fixedXpos = grid.row * spacing;
-  let fixedYpos = grid.col * spacing;
-  console.log(fixedXpos);
+  // potential error here to load the board with the wrong player if they toggle really quick
+  totalBoard[grid.row][grid.col] = currentPlayer;
+  console.log(grid.row);
+  console.log(totalBoard[grid.row][grid.col]);
+  console.log(spacing);
+  let fixedXpos = (grid.row + 1) * spacing;
+  let fixedYpos = (grid.col + 1) * spacing;
+
   piece.style.marginLeft = fixedXpos + 'px';
   piece.style.marginTop = fixedYpos + 'px';
   // piece.innerHTML = html;
@@ -75,8 +84,6 @@ function placePiece(mouseEvent) {
 }
 
 function getRowCol(xpos, ypos) {
-  // gets the total size of the board, finds appropriate spacing
-
   // finds basic column and row
   let row = (xpos / spacing) | 0;
   let col = (ypos / spacing) | 0;
@@ -86,12 +93,14 @@ function getRowCol(xpos, ypos) {
   let shiftY = ypos % spacing;
 
   // if this shift is greater than half, adds to row
-  if (shiftX > spacing / 2) {
+  if (shiftX > spacing / 2 && row !== 20) {
     row += 1;
   }
-  if (shiftY > spacing / 2) {
+  if (shiftY > spacing / 2 && row !== 20) {
     col += 1;
   }
+  row = 0 ? 0 : row - 1;
+  col = 0 ? 0 : col - 1;
   return { row, col };
 }
 
