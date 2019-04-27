@@ -9,8 +9,17 @@ Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. 
 ## Examples
 
 ## Future Features
+
+### MVP 1:
+* Toggle placing black/white pieces
+* Display whose turn it is
+* Have a scoreboard
+* Load positions into data structure
+
+### MVP 2:
 * Add examples of different board positions
 * Add multiplayer
 * Add more color and formatting
 * Add bespoke favicons
-* 
+* Squash commit history and make it pretty
+* Move all formatting into CSS file

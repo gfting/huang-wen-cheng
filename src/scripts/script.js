@@ -1,3 +1,5 @@
+let currentPlayer = 'white';
+
 function findObjectCoords(mouseEvent) {
   let obj = document.getElementById('goBoard');
   let obj_left = 0;
@@ -20,14 +22,22 @@ function findObjectCoords(mouseEvent) {
   //     xpos = window.event.x + document.body.scrollLeft - 2;
   //     ypos = window.event.y + document.body.scrollTop - 2;
   //   }
-  xpos -= obj_left;
-  ypos -= obj_top;
+  xpos -= Number(obj_left);
+  ypos -= Number(obj_top);
 
   // Writing coordinates for testing
-  document.getElementById('objectCoords').innerHTML = xpos + ', ' + ypos;
+  document.getElementById('objectCoords').innerHTML =
+    'Current coordinates:<br>' + xpos + ', ' + ypos;
   return { xpos, ypos };
 }
 
+function togglePlayer() {
+  if (currentPlayer === 'white') {
+    currentPlayer = 'black';
+  } else {
+    currentPlayer = 'white';
+  }
+}
 // Implementation of placing the piece
 function placePiece(mouseEvent) {
   const piece = document.createElement('img');
@@ -37,7 +47,11 @@ function placePiece(mouseEvent) {
 
   // insert p1/p2 logic here
   piece.className = 'piece';
-  piece.src = 'assets/white-piece.png';
+  if (currentPlayer === 'white') {
+    piece.src = 'assets/white-piece.png';
+  } else {
+    piece.src = 'assets/black-piece.png';
+  }
   piece.style.width = '20px';
   piece.style.height = '20px';
   piece.style.marginLeft = '400px';
