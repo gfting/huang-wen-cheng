@@ -1,0 +1,25 @@
+{
+  "name": "package",
+  "version": "1.0.0",
+  "description": "Package for writing online Go game",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-google": "^0.12.0",
+    "eslint-plugin-react": "^7.12.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gfting/huang-wen-cheng.git"
+  },
+  "author": "gfting",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gfting/huang-wen-cheng/issues"
+  },
+  "homepage": "https://github.com/gfting/huang-wen-cheng#readme"
+}
