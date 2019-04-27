@@ -7,11 +7,10 @@
 		body {
 		  background: #2b2b2b;
 		  height: 100vh;
-		  margin: 0;
-		  display: flex; 
+			margin: 0;
+			display: flex; 
 		  align-items: center;
 		  justify-content: center;
-		  text-align: center;
 		  font-family: Helvetica neue, roboto;
 		}
 
@@ -19,16 +18,32 @@
 		  color: #bdbdbd;
 		  font-weight: 300;
 		}
+
+		#goBoard {
+			width: 400px; 
+			height: 400px;
+		}
+
+		#objectCoords {
+			font-size: 36px; 
+			color: white;
+			text-align: right;
+			display: right; 
+			position: absolute;
+			top: 0px;
+			right: 0px;
+		}
 	</style>
 
 </head>
 <body>
 	<!-- current offset utilizing 400px by 400px: 12 px -->
-	<div id="goBoard" style="width: 400px; height: 400px">
+	<div id="objectCoords"></div>
+	<div id="goBoard">
 		<img id="goBoard-img" src="assets/blank_board.png" style="text-align:center; width:400px; height:400px; background-color:#ccc; position: absolute">
-    	<div id="objectCoords" style ="font-size: 36px; color: white;"></div>
 		</img>
 	</div>
+
 	
 	<script src="scripts/script.js"></script>
     

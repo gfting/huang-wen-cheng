@@ -5,3 +5,10 @@ Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. 
 
 
 ## Examples
+
+## Future Features
+* Add examples of different board positions
+* Add multiplayer
+* Add more color and formatting
+* Add bespoke favicons
+* 
