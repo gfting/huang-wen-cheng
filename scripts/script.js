@@ -25,7 +25,7 @@ function findObjectCoords(mouseEvent) {
 
   // Writing coordinates for testing
   document.getElementById('objectCoords').innerHTML = xpos + ', ' + ypos;
-  return {xpos, ypos};
+  return { xpos, ypos };
 }
 
 // Implementation of placing the piece
