@@ -16,7 +16,7 @@
     "standard": "*"
   },
   "scripts": {
-    "test": "standard && node my-tests.js"
+    "lint": "eslint src -c .eslintrc.json --ext js,jsx"
   },
   "repository": {
     "type": "git",
