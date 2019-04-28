@@ -3,10 +3,13 @@
 # huang-wen-cheng
 Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. We are rarely able to play with one another because of distance, but I hope that this will be enjoyed by both him and others.
 
+## Setup
+You can git clone this project. If you want to try hacking on it, you can do 'npm i' and then 'browser-sync start --config bs-config.js'
 ## Introduction to Rules
 
 
 ## Examples
+
 
 ## Future Features
 

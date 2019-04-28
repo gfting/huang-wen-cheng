@@ -4,7 +4,9 @@ const element = document.getElementById('goBoard-img');
 const positionInfo = element.getBoundingClientRect();
 const height = positionInfo.height;
 const totalWidth = positionInfo.width;
-const spacing = (totalWidth - 24) / 20;
+const boardOffset = (24 / 400) * totalWidth;
+const spacing = (totalWidth - boardOffset) / 20;
+
 // Create 2-D array to hold all values
 var totalBoard = new Array(20);
 for (i = 0; i < totalBoard.length; i++) {
@@ -64,8 +66,6 @@ function placePiece(mouseEvent) {
   }
   piece.style.width = '15px';
   piece.style.height = '15px';
-  piece.style.marginLeft = '400px';
-  piece.style.marginTop = '400px';
   piece.style.position = 'absolute';
   const grid = getRowCol(locations.xpos, locations.ypos);
   // potential error here to load the board with the wrong player if they toggle really quick
@@ -73,8 +73,8 @@ function placePiece(mouseEvent) {
   console.log(grid.row);
   console.log(totalBoard[grid.row][grid.col]);
   console.log(spacing);
-  let fixedXpos = (grid.row + 1) * spacing;
-  let fixedYpos = (grid.col + 1) * spacing;
+  let fixedXpos = grid.row * spacing + boardOffset / 3;
+  let fixedYpos = grid.col * spacing + boardOffset / 3;
 
   piece.style.marginLeft = fixedXpos + 'px';
   piece.style.marginTop = fixedYpos + 'px';
@@ -92,15 +92,13 @@ function getRowCol(xpos, ypos) {
   let shiftX = xpos % spacing;
   let shiftY = ypos % spacing;
 
-  // if this shift is greater than half, adds to row
+  // if this shift is greater than half, that means it was closer to the other pos
   if (shiftX > spacing / 2 && row !== 20) {
     row += 1;
   }
   if (shiftY > spacing / 2 && row !== 20) {
     col += 1;
   }
-  row = 0 ? 0 : row - 1;
-  col = 0 ? 0 : col - 1;
   return { row, col };
 }
 
