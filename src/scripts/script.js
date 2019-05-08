@@ -1,11 +1,11 @@
 let currentPlayer = 'white';
 // gets the total size of the board, finds appropriate spacing
-const element = document.getElementById('goBoard-img');
-const positionInfo = element.getBoundingClientRect();
-const height = positionInfo.height;
-const totalWidth = positionInfo.width;
-const boardOffset = (24 / 400) * totalWidth;
-const spacing = (totalWidth - boardOffset) / 20;
+const boardElement = document.getElementById('goBoard-img');
+const boardPositionInfo = boardElement.getBoundingClientRect();
+const boardHeight = boardPositionInfo.height;
+const boardWidth = boardPositionInfo.width;
+const boardOffset = (24 / 400) * boardWidth;
+const spacing = (boardWidth - boardOffset) / 20;
 
 // Create 2-D array to hold all values
 var totalBoard = new Array(20);
@@ -18,45 +18,12 @@ function togglePlayer() {
   currentPlayer = currentPlayer === 'white' ? (currentPlayer = 'black') : (currentPlayer = 'white');
 }
 
-function findObjectCoords(mouseEvent) {
-  let obj = document.getElementById('goBoard-img');
-  let objLeft = 0;
-  let objTop = 0;
-  let xpos;
-  let ypos;
-  while (obj.offsetParent) {
-    objLeft += obj.offsetLeft;
-    objTop += obj.offsetTop;
-    obj = obj.offsetParent;
-  }
-  console.log(objLeft);
-  console.log(objTop);
-  if (mouseEvent) {
-    // FireFox
-    xpos = mouseEvent.pageX;
-    ypos = mouseEvent.pageY;
-  }
-  console.log(xpos);
-  console.log(ypos);
-  //   else
-  //   {
-  //     //IE
-  //     xpos = window.event.x + document.body.scrollLeft - 2;
-  //     ypos = window.event.y + document.body.scrollTop - 2;
-  //   }
-  xpos -= Number(objLeft);
-  ypos -= Number(objTop);
-
-  // Writing coordinates for testing
-  document.getElementById('objectCoords').innerHTML =
-    'Current coordinates:<br>' + xpos + ', ' + ypos;
-  return { xpos, ypos };
-}
-
 function getPosition(e) {
-  let rect = e.target.getBoundingClientRect();
-  let x = e.clientX - rect.left;
-  let y = e.clientY - rect.top;
+  console.log(e.clientX);
+  console.log(e.clientY);
+  let x = e.clientX - boardPositionInfo.left;
+  let y = e.clientY - boardPositionInfo.top;
+  document.getElementById('objectCoords').innerHTML = 'Current coordinates:<br>' + x + ', ' + y;
   return {
     x,
     y
@@ -64,9 +31,9 @@ function getPosition(e) {
 }
 
 // Implementation of placing the piece
-function placePiece(mouseEvent) {
+function placePiece(e) {
   // gets location
-  const location = getPosition(mouseEvent);
+  const location = getPosition(e);
 
   // creates piece and sets styles
   const piece = document.createElement('img');
@@ -77,9 +44,6 @@ function placePiece(mouseEvent) {
 
   // determines which player it is
   piece.src = currentPlayer === 'white' ? 'assets/white-piece.png' : 'assets/black-piece.png';
-
-  console.log(location.x);
-  console.log(location.y);
 
   const grid = getRowCol(location.x, location.y);
 
@@ -96,11 +60,12 @@ function placePiece(mouseEvent) {
   //   cursor: url(images/my-cursor.png), auto;
   // }
 
+  // add logic that prevents
   piece.style.marginLeft = fixedXpos + 'px';
   piece.style.marginTop = fixedYpos + 'px';
   // piece.innerHTML = html;
 
-  document.getElementById('goBoard-img').appendChild(piece);
+  document.getElementById('goBoard').appendChild(piece);
 }
 
 function getRowCol(xpos, ypos) {
@@ -111,8 +76,9 @@ function getRowCol(xpos, ypos) {
 }
 
 // Function for testing finding object coordinates
-document.getElementById('goBoard-img').onmousemove = findObjectCoords;
-document.getElementById('goBoard-img').addEventListener('click', placePiece);
+// document.getElementById('goBoard').onmousemove = findObjectCoords;
+document.getElementById('goBoard').addEventListener('mousemove', getPosition);
+document.getElementById('goBoard').addEventListener('click', placePiece);
 
 // // Function that actually places the piece
 // document.getElementById('goBoard-img').onclick = placePiece;
