@@ -4,13 +4,15 @@ const boardElement = document.getElementById('goBoard-img');
 const boardPositionInfo = boardElement.getBoundingClientRect();
 const boardHeight = boardPositionInfo.height;
 const boardWidth = boardPositionInfo.width;
-const boardOffset = (24 / 400) * boardWidth;
-const spacing = (boardWidth - boardOffset) / 20;
+const boardOffset = (22 / 400) * boardWidth; // calculation based on ratio
+const spacing = (boardWidth - boardOffset) / 18;
+const pieceSize = 15;
+const pieceOffset = pieceSize / 2; // need to shift up by half the piece offset
 
 // Create 2-D array to hold all values
-var totalBoard = new Array(20);
+var totalBoard = new Array(19);
 for (i = 0; i < totalBoard.length; ++i) {
-  totalBoard[i] = new Array(20);
+  totalBoard[i] = new Array(19);
 }
 
 // Toggles player
@@ -19,15 +21,10 @@ function togglePlayer() {
 }
 
 function getPosition(e) {
-  console.log(e.clientX);
-  console.log(e.clientY);
   let x = e.clientX - boardPositionInfo.left;
   let y = e.clientY - boardPositionInfo.top;
   document.getElementById('objectCoords').innerHTML = 'Current coordinates:<br>' + x + ', ' + y;
-  return {
-    x,
-    y
-  };
+  return { x, y };
 }
 
 // Implementation of placing the piece
@@ -38,8 +35,8 @@ function placePiece(e) {
   // creates piece and sets styles
   const piece = document.createElement('img');
   piece.className = 'piece';
-  piece.style.width = '15px'; // todo: change to proportion
-  piece.style.height = '15px';
+  piece.style.width = pieceSize + 'px'; // todo: change to proportion
+  piece.style.height = pieceSize + 'px';
   piece.style.position = 'absolute';
 
   // determines which player it is
@@ -49,11 +46,16 @@ function placePiece(e) {
 
   // potential error here to load the board with the wrong player if they toggle really quick
   totalBoard[grid.row][grid.col] = currentPlayer;
-  console.log(grid.row);
-  console.log(grid.col);
+  console.log('row: ' + grid.row);
+  console.log('col: ' + grid.col);
+  console.log('spacing:' + spacing);
   console.log(totalBoard[grid.row][grid.col]);
-  const fixedXpos = grid.row * spacing + boardOffset;
-  const fixedYpos = grid.col * spacing + boardOffset;
+  const fixedXpos = grid.row * spacing + boardOffset / 2 - pieceOffset;
+  const fixedYpos = grid.col * spacing + boardOffset / 2 - pieceOffset;
+  console.log('boardOffset: ' + boardOffset);
+  console.log('fixedX: ' + fixedXpos);
+
+  console.log('fixedY: ' + fixedYpos);
   // insert custom ID here based on row and column
 
   // .custom {
