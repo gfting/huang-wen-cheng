@@ -16,12 +16,13 @@ You can git clone this project. If you want to try hacking on it, you can do 'np
 ### MVP 1:
 * Toggle placing black/white pieces
 * Display whose turn it is
-* Have a scoreboard
 * Load positions into data structure
 
 ### MVP 2:
 * Add examples of different board positions
+* Have a scoreboard
 * Add multiplayer
+* Make hover icons
 * Add more color and formatting
 * Add bespoke favicons
 * Squash commit history and make it pretty
