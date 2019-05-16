@@ -1,5 +1,8 @@
-// Starts off the game with player
-let currentPlayer = 'white';
+// class based structure for piece FIXME
+import Piece from './Piece.js';
+import Queue from './Queue.js';
+// Starts off the game with player that goes first
+let currentPlayer = 'black';
 
 // gets the total size of the board, finds appropriate spacing
 const goBoardDiv = document.getElementById('goBoard');
@@ -14,8 +17,8 @@ const pieceSize = 15;
 const pieceOffset = pieceSize / 2; // need to shift up by half the piece offset
 
 // Create 2-D array to hold all values
-var totalBoard = new Array(numLines);
-for (i = 0; i < totalBoard.length; ++i) {
+const totalBoard = new Array(numLines);
+for (let i = 0; i < totalBoard.length; ++i) {
   totalBoard[i] = new Array(numLines);
 }
 
@@ -26,10 +29,17 @@ function togglePlayer() {
 
 // returns x and y position within current element
 function getPosition(e) {
-  let x = e.clientX - boardPositionInfo.left;
-  let y = e.clientY - boardPositionInfo.top;
-  document.getElementById('objectCoords').innerHTML = 'Current coordinates:<br>' + x + ', ' + y;
+  const x = e.clientX - boardPositionInfo.left;
+  const y = e.clientY - boardPositionInfo.top;
+  document.getElementById('objectCoords').innerHTML = `Current coordinates:<br>${x}, ${y}`;
   return { x, y };
+}
+
+function genRowCol(xpos, ypos) {
+  // finds basic column and row
+  const row = Math.round((xpos - boardOffset / 2) / spacing);
+  const col = Math.round((ypos - boardOffset / 2) / spacing);
+  return { row, col };
 }
 
 // Implementation of placing the piece
@@ -37,20 +47,15 @@ function placePiece(e) {
   // gets location
   const location = getPosition(e);
 
-  // creates piece and sets styles
-  const piece = document.createElement('img');
-  piece.className = 'piece';
-  piece.style.width = pieceSize + 'px';
-  piece.style.height = pieceSize + 'px';
-  piece.style.position = 'absolute';
-
-  // determines which player it is
-  piece.src = currentPlayer === 'white' ? 'assets/white-piece.png' : 'assets/black-piece.png';
-
   // grabs row and column information based on current coords
-  const grid = getRowCol(location.x, location.y);
+  const grid = genRowCol(location.x, location.y);
   const row = grid.row;
   const col = grid.col;
+
+  // creates piece and sets styles
+  const piece = new Piece(currentPlayer, row, col);
+  const pieceEl = piece.pieceEl;
+
   // Basic prevention of duplicate pieces
   if (totalBoard[row][col]) {
     // TODO: Add some other kind of logic here
@@ -60,62 +65,29 @@ function placePiece(e) {
     // calculates position on the board based on row and col
     const fixedXpos = row * spacing + boardOffset / 2 - pieceOffset;
     const fixedYpos = col * spacing + boardOffset / 2 - pieceOffset;
+    pieceEl.style.marginLeft = `${fixedXpos}px`;
+    pieceEl.style.marginTop = `${fixedYpos}px`;
 
-    // loads into the array
-    totalBoard[row][col] = currentPlayer;
-
-    // generates a custom ID for this piece; needs to have trailing zeroes
-    piece.id = generatePieceID(row, col);
+    // loads piece object into the array
+    totalBoard[row][col] = piece;
 
     // logging information
     console.log(piece.id);
-    console.log('row: ' + row);
-    console.log('col: ' + col);
-    console.log('spacing:' + spacing);
+    console.log(`row: ${row}`);
+    console.log(`col: ${col}`);
+    console.log(`spacing:${spacing}`);
     console.log(totalBoard[row][col]);
-    console.log('boardOffset: ' + boardOffset);
-    console.log('fixedX: ' + fixedXpos);
-    console.log('fixedY: ' + fixedYpos);
+    console.log(`boardOffset: ${boardOffset}`);
+    console.log(`fixedX: ${fixedXpos}`);
+    console.log(`fixedY: ${fixedYpos}`);
 
-    piece.style.marginLeft = fixedXpos + 'px';
-    piece.style.marginTop = fixedYpos + 'px';
-    // piece.innerHTML = html;
-
-    goBoardDiv.appendChild(piece);
+    goBoardDiv.appendChild(pieceEl);
   }
-
-  // Future styling for custom hover icon
-  // .custom {
-  //   cursor: url(images/my-cursor.png), auto;
-  // }
-}
-
-function getRowCol(xpos, ypos) {
-  // finds basic column and row
-  let row = Math.round((xpos - boardOffset / 2) / spacing);
-  let col = Math.round((ypos - boardOffset / 2) / spacing);
-  return { row, col };
-}
-
-function generatePieceID(row, col) {
-  let pieceID = totalBoard[row][col][0];
-  pieceID += row < 10 ? '0' + row : row;
-  pieceID += col < 10 ? '0' + col : col;
-  return pieceID;
 }
 
 // removes a single piece based on its ID
 function removeByID(pieceID) {
   document.getElementById(pieceID).remove();
-}
-
-// gets row and column out of a pieceID through simple ternary operators
-function extractRowCol(pieceID) {
-  let row = pieceID[1] === '0' ? pieceID[2] : pieceID[1] + pieceID[2];
-  let col = pieceID[3] === '0' ? pieceID[4] : pieceID[3] + pieceID[4];
-  row = parseInt(row);
-  col = parseInt(col);
-  return { row, col };
 }
 
 // This function gets the first piece, and then creates a queue of locations to check out
@@ -175,4 +147,6 @@ goBoardDiv.addEventListener('mousemove', getPosition);
 // Function that places the piece
 goBoardDiv.addEventListener('click', placePiece);
 
+// Attaches togglePlayer to the button
+document.getElementById('togglePlayer').onclick = togglePlayer;
 // FIXME: logic for piece placement

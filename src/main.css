@@ -13,7 +13,14 @@ h1 {
   font-weight: 300;
 }
 
+.piece {
+  width: 15px;
+  height: 15px;
+  position: absolute;
+}
+
 #leaderBoard {
+  /* TODO: fill this out with a scoreboard */
 }
 
 #goBoard {
