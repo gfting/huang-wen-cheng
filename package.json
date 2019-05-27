@@ -1,6 +1,6 @@
 {
   "name": "huang-wen-cheng",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Package for writing online Go game",
   "main": "index.js",
   "dependencies": {},

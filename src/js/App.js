@@ -10,24 +10,31 @@ const boardElementImg = document.getElementById('goBoard-img');
 const boardPositionInfo = boardElementImg.getBoundingClientRect();
 const boardHeight = boardPositionInfo.height;
 const boardWidth = boardPositionInfo.width;
-const boardOffset = (22 / 400) * boardWidth; // calculation based on ratio
-const numLines = 19;
-const spacing = (boardWidth - boardOffset) / (numLines - 1);
+const boardFullOffset = (22 / 400) * boardWidth; // calculation based on ratio
+const boardOffset = boardFullOffset / 2;
+const numLines = 19; // original style of board
+const spacing = (boardWidth - boardFullOffset) / (numLines - 1); // calculates spacing between columns
 const pieceSize = 15;
 const pieceOffset = pieceSize / 2; // need to shift up by half the piece offset
+let blackScore = 0;
+let whiteScore = 0;
 
-// Create 2-D array to hold all values
-const totalBoard = new Array(numLines);
-for (let i = 0; i < totalBoard.length; ++i) {
-  totalBoard[i] = new Array(numLines);
+// Create 2-D array to hold all objects
+const totalBoard = [numLines];
+for (let i = 0; i < numLines; i += 1) {
+  totalBoard[i] = [numLines];
 }
 
-// Toggles player
+// Toggles currentPlayer
 function togglePlayer() {
-  currentPlayer = currentPlayer === 'white' ? (currentPlayer = 'black') : (currentPlayer = 'white');
+  currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 }
 
-// returns x and y position within current element
+/**
+ * Finds the coordinates within the goBoard div, and then writes those coords to the objectCoords div
+ * Utilized as actively writing on mouse move
+ * @param {mouseEvent} e mouseevent that executes the function
+ */
 function getPosition(e) {
   const x = e.clientX - boardPositionInfo.left;
   const y = e.clientY - boardPositionInfo.top;
@@ -35,63 +42,154 @@ function getPosition(e) {
   return { x, y };
 }
 
+/**
+ * Derives the row and column of the xpos and ypos input based on spacing and height of the goBoard div
+ * @param {Number} xpos the x position within the object
+ * @param {Number} ypos the y position within the object
+ */
+// generates row and column based on input xpos and ypos
 function genRowCol(xpos, ypos) {
   // finds basic column and row
-  const row = Math.round((xpos - boardOffset / 2) / spacing);
-  const col = Math.round((ypos - boardOffset / 2) / spacing);
+  const row = Math.round((xpos - boardOffset) / spacing);
+  const col = Math.round((ypos - boardOffset) / spacing);
   return { row, col };
 }
 
-// Implementation of placing the piece
-function placePiece(e) {
-  // gets location
-  const location = getPosition(e);
-
-  // grabs row and column information based on current coords
-  const grid = genRowCol(location.x, location.y);
-  const row = grid.row;
-  const col = grid.col;
-
-  // creates piece and sets styles
-  const piece = new Piece(currentPlayer, row, col);
-  const pieceEl = piece.pieceEl;
-
-  // Basic prevention of duplicate pieces
-  if (totalBoard[row][col]) {
-    // TODO: Add some other kind of logic here
-    console.log("There's a piece here already!");
-  } else {
-    // FIXME: Logic should go here to determine what gets placed
-    // calculates position on the board based on row and col
-    const fixedXpos = row * spacing + boardOffset / 2 - pieceOffset;
-    const fixedYpos = col * spacing + boardOffset / 2 - pieceOffset;
-    pieceEl.style.marginLeft = `${fixedXpos}px`;
-    pieceEl.style.marginTop = `${fixedYpos}px`;
-
-    // loads piece object into the array
-    totalBoard[row][col] = piece;
-
-    // logging information
-    console.log(piece.id);
-    console.log(`row: ${row}`);
-    console.log(`col: ${col}`);
-    console.log(`spacing:${spacing}`);
-    console.log(totalBoard[row][col]);
-    console.log(`boardOffset: ${boardOffset}`);
-    console.log(`fixedX: ${fixedXpos}`);
-    console.log(`fixedY: ${fixedYpos}`);
-
-    goBoardDiv.appendChild(pieceEl);
-  }
+/**
+ * Given a row and column, this helper function returns if they fit on board
+ * @param {Number} row – y axis row
+ * @param {Number} col – x axis col
+ */
+function validLocation(row, col) {
+  return row >= 0 && row < numLines && col >= 0 && col < numLines;
 }
 
-// removes a single piece based on its ID
-function removeByID(pieceID) {
-  document.getElementById(pieceID).remove();
+function inArray(piece, array) {
+  array.forEach(function pieceExists(Element) {
+    if (Element === piece) {
+      return true;
+    }
+    return false;
+  });
+}
+
+// removes all elements in the explored queue
+// TODO: needs to keep track of the current number of removed in order to increment the score
+function emptyCaptured(capturedPieces) {
+  // iterates through each piece in the explored array and removes it from the board
+  capturedPieces.forEach(
+    // removes a single piece
+    function removePiece(piece) {
+      // removes piece from the DOM
+      document.getElementById(piece.pieceID).remove();
+
+      // removes the piece from the board array
+      delete totalBoard[piece.row][piece.col];
+    }
+  );
+}
+
+/**
+ * given a piece, it will add on connected pieces onto the array
+ * @param {Piece} piece - piece object; gets related
+ * @param {Array} connectedPieces - array of connected pieces
+ */
+function getConnected(piece, connectedPieces) {
+  const curColor = piece.color;
+  // if connectedPieces is null, then we'll create a new array
+  connectedPieces = connectedPieces || [];
+
+  // adds the current piece to the array
+  connectedPieces.push(piece);
+
+  // process neighboring points: either will be the piece located at that location, or be undefined
+  const { row } = piece;
+  const { col } = piece;
+  const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
+  const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
+  const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
+  const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
+
+  // if the piece is undefined or a different color, we don't want to add it to our array of connected pieces
+  if (northPiece !== undefined) {
+    if (northPiece.color === curColor && !inArray(northPiece, connectedPieces)) {
+      getConnected(northPiece, connectedPieces);
+    }
+  }
+  if (southPiece !== undefined) {
+    if (southPiece.color === curColor && !inArray(southPiece, connectedPieces)) {
+      getConnected(southPiece, connectedPieces);
+    }
+  }
+  if (westPiece !== undefined) {
+    if (westPiece.color === curColor && !inArray(westPiece, connectedPieces)) {
+      getConnected(westPiece, connectedPieces);
+    }
+  }
+  if (eastPiece !== undefined) {
+    if (eastPiece.color === curColor && !inArray(eastPiece, connectedPieces)) {
+      getConnected(eastPiece, connectedPieces);
+    }
+  }
+
+  return connectedPieces;
+}
+
+// given a piece, finds the locations that need to be filled in order for this group of piece to be removed from the board
+function getLiberties(piece, connectedPieces, liberties) {
+  // if connectedPieces or liberties is null, then we'll create new arrays for them
+  connectedPieces = connectedPieces || [];
+  liberties = liberties || [];
+
+  // this piece's color
+  const curColor = piece.color;
+
+  // process neighboring points: either will be the piece located at that location, or be undefined
+  const { row } = piece;
+  const { col } = piece;
+  const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
+  const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
+  const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
+  const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
+
+  // if this is an empty location, then we should put on it on our empty locations. This means that it's
+  // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
+  // means it's connected
+  if (
+    northPiece !== undefined &&
+    northPiece.color === curColor &&
+    !inArray(northPiece, liberties)
+  ) {
+    getLiberties(northPiece, connectedPieces, liberties);
+  }
+  // equivalent of being 'empty'
+  else if (northPiece === undefined && validLocation(row, col - 1)) {
+    liberties.push([row, col - 1]); // dummy information
+  }
+  if (
+    southPiece !== undefined &&
+    southPiece.color === curColor &&
+    !inArray(southPiece, liberties)
+  ) {
+    getLiberties(southPiece, connectedPieces, liberties);
+  } else if (southPiece === undefined && validLocation(row, col + 1)) {
+    liberties.push([row, col + 1]); // dummy information
+  }
+  if (westPiece !== undefined && westPiece.color === curColor && !inArray(westPiece, liberties)) {
+    getLiberties(westPiece, connectedPieces, liberties);
+  } else if (westPiece === undefined && validLocation(row - 1, col)) {
+    liberties.push([row - 1, col]); // dummy information
+  }
+  if (eastPiece !== undefined && eastPiece.color === curColor && !inArray(eastPiece, liberties)) {
+    getLiberties(eastPiece, connectedPieces, liberties);
+  } else if (eastPiece === undefined && validLocation(row + 1, col)) {
+    liberties.push([row + 1, col]); // dummy information
+  }
+
+  return liberties;
 }
 
 // This function gets the first piece, and then creates a queue of locations to check out
-// Continuously checks out values around me, adding it to a stack.
 /* Conditions for total removal:
   This color must be surrounded N S E W by other colors
   We need to keep on checking around us if we're bounded by pieces of the same color
@@ -100,46 +198,111 @@ function removeByID(pieceID) {
   Keep a stack full of IDs of pieces? Then we can do some math to figure out our bounds, and also
   Remove all of the necessary things
   */
-function checkRemoval(row, col) {}
+function checkRemoval(piece) {
+  // array of pieces that are captured with this piece's placement
+  let capturedPieces = [];
 
-// Implementation of game logic for removal – BFS traversal
-// This is utilized before placing a piece
-function explore(row, col) {
-  // Get passed a pieceID or a row and col; either way works
+  // this piece's color
+  const curColor = piece.color;
 
-  // First, grab the current player
-  const curPlayer = totalBoard[row][col];
-  // Examine the current board state --
-  // If the child next to us is the same color, we need to check their children
+  // process neighboring points: either will be the piece located at that location, or be undefined
+  const { row } = piece;
+  const { col } = piece;
+  const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
+  const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
+  const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
+  const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
 
-  // Check north
-  // Fix conditions
-  if (col - 1 >= 0) {
-    // if there's nothing located there, we're not surrounded
-    if (!totalBoard[row][col - 1]) {
-      return false;
+  // if this is an empty location, then we should put on it on our empty locations. This means that it's
+  // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
+  if (northPiece !== undefined) {
+    if (northPiece.color !== curColor) {
+      if (!inArray(northPiece, capturedPieces) && getLiberties(northPiece).length === 0) {
+        capturedPieces = capturedPieces.concat(getConnected(northPiece));
+      }
     }
-    // if above is bounded by curPlayer, then we need to keep on checking that piece
-    if (totalBoard[row][col - 1] === curPlayer) {
-      explore(row, col - 1);
+  }
+  if (southPiece !== undefined) {
+    if (southPiece.color !== curColor) {
+      if (!inArray(southPiece, capturedPieces) && getLiberties(southPiece).length === 0) {
+        capturedPieces = capturedPieces.concat(getConnected(southPiece));
+      }
+    }
+  }
+  if (westPiece !== undefined) {
+    if (westPiece.color !== curColor) {
+      if (!inArray(westPiece, capturedPieces) && getLiberties(westPiece).length === 0) {
+        capturedPieces = capturedPieces.concat(getConnected(westPiece));
+      }
+    }
+  }
+  if (eastPiece !== undefined) {
+    if (eastPiece.color !== curColor) {
+      if (!inArray(eastPiece, capturedPieces) && getLiberties(eastPiece).length === 0) {
+        capturedPieces = capturedPieces.concat(getConnected(eastPiece));
+      }
     }
   }
 
-  // Check south
-  if (totalBoard[row][col + 1] === curPlayer && col + 1 <= 20) {
-    // perform logic here
-  }
+  return capturedPieces;
+}
 
-  // Check east
-  if (totalBoard[row + 1][col] === curPlayer && row + 1 <= 20) {
-    // perform other logic
-  }
+/**
+ * generates and creates a piece based on current location; event is onclick
+ * @param {mouseEvent} e – mouse event that prompts execution
+ */
+function placePiece(e) {
+  // gets current location's x and y
+  const location = getPosition(e);
 
-  // Check west
-  if (totalBoard[row - 1][col] === curPlayer && row - 1 >= 0) {
-    // perform other logic'
+  // finds row and column information based on x and y
+  const grid = genRowCol(location.x, location.y);
+  const { row } = grid;
+  const { col } = grid;
+  document.getElementById('pieceRowCol').innerHTML = `Board Location:<br>row:${row}, col:${col}`;
+
+  // creates piece and sets styles
+  const piece = new Piece(currentPlayer, row, col);
+  const { pieceEl } = piece;
+
+  // basic prevention of duplicate pieces
+  if (totalBoard[row][col] !== undefined) {
+    // TODO: Add some other kind of logic here
+    console.log("There's a piece here already!");
+  } else {
+    // FIXME: Logic should go here to determine what gets placed
+    // calculates position on the board based on row and col
+    const fixedXpos = row * spacing + boardOffset - pieceOffset;
+    const fixedYpos = col * spacing + boardOffset - pieceOffset;
+    pieceEl.style.marginLeft = `${fixedXpos}px`;
+    pieceEl.style.marginTop = `${fixedYpos}px`;
+
+    // loads piece object into the array
+    totalBoard[row][col] = piece;
+
+    // ends by appending the element of the piece to the board
+    goBoardDiv.appendChild(pieceEl);
+
+    // checks if there's anything that needs to be removed when this piece is placed
+    const capturedPieces = checkRemoval(piece);
+    if (capturedPieces.length !== 0) {
+      // add to the score here by the length
+      if (currentPlayer === 'black') {
+        blackScore += capturedPieces.length;
+      } else {
+        whiteScore += capturedPieces.length;
+      }
+
+      // TODO: update the scores on the DOM
+
+      // remove all the pieces from the captured array
+      emptyCaptured(capturedPieces);
+    }
   }
 }
+
+// we'll need to remove stuff from the total board: that is, take the row and col of each of the
+// pieces and then take sit out of the totalBoard. like delete totalBoard[row][col]
 
 // Function for testing finding object coordinates
 goBoardDiv.addEventListener('mousemove', getPosition);

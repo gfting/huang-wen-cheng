@@ -38,6 +38,16 @@ h1 {
   right: 0px;
 }
 
+#pieceRowCol {
+  font-size: 36px;
+  color: white;
+  text-align: center;
+  display: left;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
 #goBoard-img {
   text-align: center;
   width: 400px;

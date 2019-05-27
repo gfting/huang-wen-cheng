@@ -8,10 +8,13 @@ Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. 
 
 You can 'git clone' this project, or check out a live demo in the link above. If you want to try hacking on it, you can do 'npm i' and then 'http-server -c-1' for a live reload.
 
+Linting: just run 'npm run lint'.
+
 ## Introduction to Rules
 
 Players place pieces in order one at a time.
 For additional reference: the [Wikipedia Go Page](<https://en.wikipedia.org/wiki/Go_(game)>) is fairly comprehensive.
+The resources at [Masters of Games](https://www.mastersofgames.com/rules/go-rules.htm) is also useful. 
 
 ## Examples
 
@@ -53,7 +56,18 @@ Coming soon with screenshots from the game!
 - Alternatively, utilize undo/redo stack to look at previous commands and process based on IDs
 - Add different board sizes (9 x 9, 13 x 13) you can select from
 - Make pieces prettier
+- Refactor everything to 0 | 1 | 2 for null, black, white
+- make the board a class
+- custom IDs for players
+- add a highlighter for most recent move
+- utilize game states. honestly, this will require a full rewrite, I think
+- Just rewrite the whole thing utilizing React. There are some cases that my current implementation just doens't work for
+- Add on a testing suite
+
+
+### Future Implementations
 - Add an iMessage app implementation
+- make a new app with React Native || NativeScript
 
 ## Challenges
 
