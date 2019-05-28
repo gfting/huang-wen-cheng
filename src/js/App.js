@@ -57,7 +57,9 @@ function getPosition(e) {
   document.getElementById('pieceRowCol').innerHTML = `Board Location:<br>row:${grid.row}, col:${
     grid.col
   }`;
-  const hoverSrc = currentPlayer === 'white' ? 'assets/white-piece.png' : 'assets/black-piece.png';
+  // automatically hovers cursor as a piece depending on current player
+  const hoverSrc =
+    currentPlayer === 'white' ? '../assets/white-piece.png' : '../assets/black-piece.png';
   goBoardDiv.style.cursor = `url(${hoverSrc}), auto;`;
 
   return { x, y };
@@ -283,10 +285,8 @@ function placePiece(e) {
 
   // basic prevention of duplicate pieces
   if (totalBoard[row][col] !== undefined) {
-    // TODO: Add some other kind of logic here
-    console.log("There's a piece here already!");
+    alert("There's a piece here already!");
   } else {
-    // FIXME: Logic should go here to determine what gets placed
     // calculates position on the board based on row and col
     const fixedXpos = row * spacing + boardOffset - pieceOffset;
     const fixedYpos = col * spacing + boardOffset - pieceOffset;
@@ -321,9 +321,6 @@ function placePiece(e) {
   }
 }
 
-// we'll need to remove stuff from the total board: that is, take the row and col of each of the
-// pieces and then take sit out of the totalBoard. like delete totalBoard[row][col]
-
 // Function for testing finding object coordinates
 goBoardDiv.addEventListener('mousemove', getPosition);
 
@@ -332,4 +329,3 @@ goBoardDiv.addEventListener('click', placePiece);
 
 // Attaches togglePlayer to the button
 document.getElementById('togglePlayer').onclick = togglePlayer;
-// FIXME: logic for piece placement

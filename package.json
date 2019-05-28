@@ -1,9 +1,11 @@
 {
   "name": "huang-wen-cheng",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Package for writing online Go game",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.17.1"
+  },
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",

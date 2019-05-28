@@ -1,8 +1,14 @@
 [![Build Status](https://travis-ci.com/gfting/huang-wen-cheng.svg?branch=master)](https://travis-ci.com/gfting/huang-wen-cheng)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d9a7cfa1-3440-4f51-8fe2-205404db05e9/deploy-status)](https://app.netlify.com/sites/huang-wen-cheng/deploys)
+
 # huang-wen-cheng
 
-Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. We are rarely able to play with one another because of distance, but I hope that this will be enjoyed by both him and others. *He died May 15th, 2019 before the completion of this project. Try it out live at https://go.gfting.dev.
+Try it out live at https://go.gfting.dev!
+
+Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. We are rarely able to play with one another because of distance, but I hope that this will be enjoyed by both him and others. 
+
+**He died May 15th, 2019 before the completion of this project. 
 
 ## Introduction to Rules
 
@@ -37,7 +43,6 @@ Coming soon with screenshots from the game!
 - Have a scoreboard
 - Change to class-based structure for pieces
 - Game logic for removal
-- Flesh out more documentation with official javadoc format
 - Add bespoke favicons
 - Add more color and formatting
 - custom hover icon

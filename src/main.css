@@ -20,7 +20,6 @@ h1 {
 }
 
 #scoreBoard {
-  /* TODO: fill this out with a scoreboard */
   font-size: 36px;
   color: white;
   text-align: center;
@@ -32,7 +31,6 @@ h1 {
 #goBoard {
   width: 400px;
   height: 400px;
-  cursor: pointer;
 }
 
 #objectCoords {
@@ -42,7 +40,7 @@ h1 {
   display: right;
   position: absolute;
   top: 0px;
-  right: 0px;
+  right: 10px;
 }
 
 #pieceRowCol {
@@ -52,7 +50,7 @@ h1 {
   display: left;
   position: absolute;
   top: 0px;
-  left: 0px;
+  left: 10px;
 }
 
 #goBoard-img {
@@ -134,4 +132,13 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+#github-star {
+  display: right;
+  bottom: 10px;
+  justify-content: right;
+  color: white;
+  text-align: right;
+  position: absolute;
 }
