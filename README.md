@@ -2,19 +2,20 @@
 
 # huang-wen-cheng
 
-Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. We are rarely able to play with one another because of distance, but I hope that this will be enjoyed by both him and others. *He died May 15th, 2019 before the completion of this project. Try it out at https://go.gfting.dev.
-
-## Setup
-
-You can 'git clone' this project, or check out a live demo in the link above. If you want to try hacking on it, you can do 'npm i' and then 'http-server -c-1' for a live reload.
-
-Linting: just run 'npm run lint'.
+Web app to play Go, named in honor of my grandfather that taught me, 黃文辰. We are rarely able to play with one another because of distance, but I hope that this will be enjoyed by both him and others. *He died May 15th, 2019 before the completion of this project. Try it out live at https://go.gfting.dev.
 
 ## Introduction to Rules
 
-Players place pieces in order one at a time.
+Black goes first. Players take turns placing pieces one at a time. The goal is to claim the largest terrority on the board. On the way, you can capture your opponent's pieces by surrounding their entire connected mass on all adjacent locations in cardinal directions. Therefore, you don't need to occupy the northwest, northeast, southwest, or souteast locations in order to capture a piece.
+
 For additional reference: the [Wikipedia Go Page](<https://en.wikipedia.org/wiki/Go_(game)>) is fairly comprehensive.
 The resources at [Masters of Games](https://www.mastersofgames.com/rules/go-rules.htm) is also useful. 
+
+## Dev setup
+
+You can 'git clone' this project, or check out a live demo in the link above. If you want to try hacking on it, you can do 'npm i' and then 'http-server -c-1' for a live reload local server.
+
+Linting: just run 'npm run lint'.
 
 ## Examples
 
@@ -35,17 +36,14 @@ Coming soon with screenshots from the game!
 - Add examples of different board positions
 - Have a scoreboard
 - Change to class-based structure for pieces
-- Game logic:
-  - Remove pieces
-  - BFS traversal for removal when placing different parts
-- Make hover icons
+- Game logic for removal
 - Flesh out more documentation with official javadoc format
 - Add bespoke favicons
 - Add more color and formatting
-- TODO:   Future styling for custom hover icon
-    .custom {
-      cursor: url(images/my-cursor.png), auto;
-    }
+- custom hover icon
+  .custom {
+    cursor: url(images/my-cursor.png), auto;
+  }
 
 ### MVP 3:
 

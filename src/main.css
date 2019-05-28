@@ -19,13 +19,20 @@ h1 {
   position: absolute;
 }
 
-#leaderBoard {
+#scoreBoard {
   /* TODO: fill this out with a scoreboard */
+  font-size: 36px;
+  color: white;
+  text-align: center;
+  display: center;
+  position: absolute;
+  top: 0px;
 }
 
 #goBoard {
   width: 400px;
   height: 400px;
+  cursor: pointer;
 }
 
 #objectCoords {

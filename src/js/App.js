@@ -1,6 +1,5 @@
 // class based structure for piece FIXME
 import Piece from './Piece.js';
-import Queue from './Queue.js';
 // Starts off the game with player that goes first
 let currentPlayer = 'black';
 
@@ -8,7 +7,6 @@ let currentPlayer = 'black';
 const goBoardDiv = document.getElementById('goBoard');
 const boardElementImg = document.getElementById('goBoard-img');
 const boardPositionInfo = boardElementImg.getBoundingClientRect();
-const boardHeight = boardPositionInfo.height;
 const boardWidth = boardPositionInfo.width;
 const boardFullOffset = (22 / 400) * boardWidth; // calculation based on ratio
 const boardOffset = boardFullOffset / 2;
@@ -23,6 +21,7 @@ let whiteScore = 0;
 const totalBoard = [numLines];
 for (let i = 0; i < numLines; i += 1) {
   totalBoard[i] = [numLines];
+  totalBoard[i][0] = undefined; // workaround for some unexpected behaviors
 }
 
 /**
@@ -30,18 +29,6 @@ for (let i = 0; i < numLines; i += 1) {
  */
 function togglePlayer() {
   currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
-}
-
-/**
- * Finds the coordinates within the goBoard div, and then writes those coords to the objectCoords div
- * Utilized as actively writing on mouse move
- * @param {mouseEvent} e mouseevent that executes the function
- */
-function getPosition(e) {
-  const x = e.clientX - boardPositionInfo.left;
-  const y = e.clientY - boardPositionInfo.top;
-  document.getElementById('objectCoords').innerHTML = `Current coordinates:<br>${x}, ${y}`;
-  return { x, y };
 }
 
 /**
@@ -55,6 +42,25 @@ function genRowCol(xpos, ypos) {
   const row = Math.round((xpos - boardOffset) / spacing);
   const col = Math.round((ypos - boardOffset) / spacing);
   return { row, col };
+}
+
+/**
+ * Finds the coordinates within the goBoard div, and then writes those coords to the objectCoords div
+ * Utilized as actively writing on mouse move
+ * @param {mouseEvent} e mouseevent that executes the function
+ */
+function getPosition(e) {
+  const x = e.clientX - boardPositionInfo.left;
+  const y = e.clientY - boardPositionInfo.top;
+  document.getElementById('objectCoords').innerHTML = `Current coordinates:<br>${x}, ${y}`;
+  const grid = genRowCol(x, y);
+  document.getElementById('pieceRowCol').innerHTML = `Board Location:<br>row:${grid.row}, col:${
+    grid.col
+  }`;
+  const hoverSrc = currentPlayer === 'white' ? 'assets/white-piece.png' : 'assets/black-piece.png';
+  goBoardDiv.style.cursor = `url(${hoverSrc}), auto;`;
+
+  return { x, y };
 }
 
 /**
@@ -303,8 +309,10 @@ function placePiece(e) {
         whiteScore += capturedPieces.length;
       }
 
-      // TODO: update the scores on the DOM
-
+      // update the scores on the DOM
+      document.getElementById(
+        'scoreBoard'
+      ).innerHTML = `Captured Pieces:<br>Black: ${blackScore}, White: ${whiteScore}`;
       // remove all the pieces from the captured array
       emptyCaptured(capturedPieces);
     }
