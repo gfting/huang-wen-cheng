@@ -25,7 +25,9 @@ for (let i = 0; i < numLines; i += 1) {
   totalBoard[i] = [numLines];
 }
 
-// Toggles currentPlayer
+/**
+ * Flips the player from current state
+ */
 function togglePlayer() {
   currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 }
@@ -64,17 +66,25 @@ function validLocation(row, col) {
   return row >= 0 && row < numLines && col >= 0 && col < numLines;
 }
 
+/**
+ * returns true if the piece is found in the array
+ * @param {Piece} piece - piece to be checked if in array
+ * @param {Array} array - array that piece will be checked again
+ */
 function inArray(piece, array) {
+  let found = false;
   array.forEach(function pieceExists(Element) {
     if (Element === piece) {
-      return true;
+      found = true;
     }
-    return false;
   });
+  return found;
 }
 
-// removes all elements in the explored queue
-// TODO: needs to keep track of the current number of removed in order to increment the score
+/**
+ * removes all elements in the explored queue
+ * @param {Array} capturedPieces - all pieces that will need to be removed
+ */
 function emptyCaptured(capturedPieces) {
   // iterates through each piece in the explored array and removes it from the board
   capturedPieces.forEach(
@@ -91,16 +101,15 @@ function emptyCaptured(capturedPieces) {
 
 /**
  * given a piece, it will add on connected pieces onto the array
- * @param {Piece} piece - piece object; gets related
+ * @param {Piece} piece - piece object that's goign to get proceeded
  * @param {Array} connectedPieces - array of connected pieces
  */
-function getConnected(piece, connectedPieces) {
-  const curColor = piece.color;
-  // if connectedPieces is null, then we'll create a new array
-  connectedPieces = connectedPieces || [];
-
+function getConnected(piece, connectedPieces = []) {
   // adds the current piece to the array
   connectedPieces.push(piece);
+
+  // grab the inital color of the first piece in the array
+  const curColor = connectedPieces[0].color;
 
   // process neighboring points: either will be the piece located at that location, or be undefined
   const { row } = piece;
@@ -110,82 +119,76 @@ function getConnected(piece, connectedPieces) {
   const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
   const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
 
-  // if the piece is undefined or a different color, we don't want to add it to our array of connected pieces
-  if (northPiece !== undefined) {
-    if (northPiece.color === curColor && !inArray(northPiece, connectedPieces)) {
-      getConnected(northPiece, connectedPieces);
-    }
+  // if the piece is undefined, a different color, or already within our connected array, we don't want to add it to our array of connected pieces
+  if (
+    northPiece !== undefined &&
+    northPiece.color === curColor &&
+    !inArray(northPiece, connectedPieces)
+  ) {
+    getConnected(northPiece, connectedPieces);
   }
-  if (southPiece !== undefined) {
-    if (southPiece.color === curColor && !inArray(southPiece, connectedPieces)) {
-      getConnected(southPiece, connectedPieces);
-    }
+  if (
+    southPiece !== undefined &&
+    southPiece.color === curColor &&
+    !inArray(southPiece, connectedPieces)
+  ) {
+    getConnected(southPiece, connectedPieces);
   }
-  if (westPiece !== undefined) {
-    if (westPiece.color === curColor && !inArray(westPiece, connectedPieces)) {
-      getConnected(westPiece, connectedPieces);
-    }
+  if (
+    westPiece !== undefined &&
+    westPiece.color === curColor &&
+    !inArray(westPiece, connectedPieces)
+  ) {
+    getConnected(westPiece, connectedPieces);
   }
-  if (eastPiece !== undefined) {
-    if (eastPiece.color === curColor && !inArray(eastPiece, connectedPieces)) {
-      getConnected(eastPiece, connectedPieces);
-    }
+  if (
+    eastPiece !== undefined &&
+    eastPiece.color === curColor &&
+    !inArray(eastPiece, connectedPieces)
+  ) {
+    getConnected(eastPiece, connectedPieces);
   }
 
   return connectedPieces;
 }
 
-// given a piece, finds the locations that need to be filled in order for this group of piece to be removed from the board
-function getLiberties(piece, connectedPieces, liberties) {
-  // if connectedPieces or liberties is null, then we'll create new arrays for them
-  connectedPieces = connectedPieces || [];
-  liberties = liberties || [];
+/**
+ * Finds all the empty spaces that need to be filled for this piece
+ * @param {Piece} initialPiece - the first piece that will be proceeded to find liberties
+ */
+function getLiberties(initialPiece) {
+  // grabs array of pieces connected to this piece
+  const connectedPieces = getConnected(initialPiece);
 
-  // this piece's color
-  const curColor = piece.color;
+  // initializes liberties
+  const liberties = [];
 
-  // process neighboring points: either will be the piece located at that location, or be undefined
-  const { row } = piece;
-  const { col } = piece;
-  const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
-  const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
-  const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
-  const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
+  // for each piece, process its liberties if they exist
+  connectedPieces.forEach(function findIndividualLiberties(piece) {
+    // process neighboring points: either will be the piece located at that location, or be undefined
+    const { row } = piece;
+    const { col } = piece;
+    const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
+    const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
+    const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
+    const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
 
-  // if this is an empty location, then we should put on it on our empty locations. This means that it's
-  // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
-  // means it's connected
-  if (
-    northPiece !== undefined &&
-    northPiece.color === curColor &&
-    !inArray(northPiece, liberties)
-  ) {
-    getLiberties(northPiece, connectedPieces, liberties);
-  }
-  // equivalent of being 'empty'
-  else if (northPiece === undefined && validLocation(row, col - 1)) {
-    liberties.push([row, col - 1]); // dummy information
-  }
-  if (
-    southPiece !== undefined &&
-    southPiece.color === curColor &&
-    !inArray(southPiece, liberties)
-  ) {
-    getLiberties(southPiece, connectedPieces, liberties);
-  } else if (southPiece === undefined && validLocation(row, col + 1)) {
-    liberties.push([row, col + 1]); // dummy information
-  }
-  if (westPiece !== undefined && westPiece.color === curColor && !inArray(westPiece, liberties)) {
-    getLiberties(westPiece, connectedPieces, liberties);
-  } else if (westPiece === undefined && validLocation(row - 1, col)) {
-    liberties.push([row - 1, col]); // dummy information
-  }
-  if (eastPiece !== undefined && eastPiece.color === curColor && !inArray(eastPiece, liberties)) {
-    getLiberties(eastPiece, connectedPieces, liberties);
-  } else if (eastPiece === undefined && validLocation(row + 1, col)) {
-    liberties.push([row + 1, col]); // dummy information
-  }
-
+    // if this is an empty location, then we should put on it on our empty locations. This means that it's
+    // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
+    // equivalent of being 'empty'
+    if (northPiece === undefined && validLocation(row, col - 1)) {
+      liberties.push([row, col - 1]); // dummy information
+    }
+    if (southPiece === undefined && validLocation(row, col + 1)) {
+      liberties.push([row, col + 1]); // dummy information
+    }
+    if (westPiece === undefined && validLocation(row - 1, col)) {
+      liberties.push([row - 1, col]); // dummy information
+    }
+    if (eastPiece === undefined && validLocation(row + 1, col)) {
+      liberties.push([row + 1, col]); // dummy information
+    }
+  });
   return liberties;
 }
 
@@ -198,12 +201,19 @@ function getLiberties(piece, connectedPieces, liberties) {
   Keep a stack full of IDs of pieces? Then we can do some math to figure out our bounds, and also
   Remove all of the necessary things
   */
+/**
+ *
+ * @param {*} piece
+ */
 function checkRemoval(piece) {
   // array of pieces that are captured with this piece's placement
   let capturedPieces = [];
 
   // this piece's color
   const curColor = piece.color;
+
+  // create connected queue so we can peek the initial val
+  const connectedPieces = [];
 
   // process neighboring points: either will be the piece located at that location, or be undefined
   const { row } = piece;
@@ -218,28 +228,28 @@ function checkRemoval(piece) {
   if (northPiece !== undefined) {
     if (northPiece.color !== curColor) {
       if (!inArray(northPiece, capturedPieces) && getLiberties(northPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(northPiece));
+        capturedPieces = capturedPieces.concat(getConnected(northPiece, connectedPieces));
       }
     }
   }
   if (southPiece !== undefined) {
     if (southPiece.color !== curColor) {
       if (!inArray(southPiece, capturedPieces) && getLiberties(southPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(southPiece));
+        capturedPieces = capturedPieces.concat(getConnected(southPiece, connectedPieces));
       }
     }
   }
   if (westPiece !== undefined) {
     if (westPiece.color !== curColor) {
       if (!inArray(westPiece, capturedPieces) && getLiberties(westPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(westPiece));
+        capturedPieces = capturedPieces.concat(getConnected(westPiece, connectedPieces));
       }
     }
   }
   if (eastPiece !== undefined) {
     if (eastPiece.color !== curColor) {
       if (!inArray(eastPiece, capturedPieces) && getLiberties(eastPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(eastPiece));
+        capturedPieces = capturedPieces.concat(getConnected(eastPiece, connectedPieces));
       }
     }
   }
@@ -298,6 +308,8 @@ function placePiece(e) {
       // remove all the pieces from the captured array
       emptyCaptured(capturedPieces);
     }
+    // ends by switching to the other player
+    togglePlayer();
   }
 }
 
