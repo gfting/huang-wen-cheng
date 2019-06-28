@@ -136,6 +136,16 @@ input:checked + .slider:before {
 
 #github-star {
   display: right;
+  right: 10px;
+  bottom: 10px;
+  justify-content: right;
+  color: white;
+  text-align: right;
+  position: absolute;
+}
+
+#memorial-text {
+  display: right;
   bottom: 10px;
   justify-content: right;
   color: white;
