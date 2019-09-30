@@ -17,7 +17,7 @@ const pieceOffset = pieceSize / 2; // need to shift up by half the piece offset
 let blackScore = 0;
 let whiteScore = 0;
 
-// Create 2-D array to hold all objects
+// Create 2-D array to hold all objects, which will be either pieces or undefined
 const totalBoard = [numLines];
 for (let i = 0; i < numLines; i += 1) {
   totalBoard[i] = [numLines];
@@ -108,9 +108,32 @@ function emptyCaptured(capturedPieces) {
 }
 
 /**
- * given a piece, it will add on connected pieces onto the array
- * @param {Piece} piece - piece object that's goign to get proceeded
- * @param {Array} connectedPieces - array of connected pieces
+ * This function gets the row and column of a piece, and then returns an array of JSON objects with properties about the pieces in cardinal directions (North, South, West, East). It has the piece, if the location is valid (i.e. is on the board), and the row/col location of the piece. Respectively, these fields are named piece, validPos, and xy.
+ * @param {int} row – the row of the piece
+ * @param {int} col - the column of the piece
+ * @return {Array} – as stated above, an array with JSON objects corresponding to the piece, if it's a valid location as a boolean, and the row/col location of the piece. Respectively named piece, validPos, and xy.
+ */
+function getCardinal(row, col) {
+  const northPiece = validLocation(row, col - 1)
+    ? { piece: totalBoard[row][col - 1], validPos: true, xy: [row, col - 1] }
+    : { piece: undefined, validPos: false, xy: [row, col - 1] };
+  const southPiece = validLocation(row, col + 1)
+    ? { piece: totalBoard[row][col + 1], validPos: true, xy: [row, col + 1] }
+    : { piece: undefined, validPos: false, xy: [row, col + 1] };
+  const westPiece = validLocation(row - 1, col)
+    ? { piece: totalBoard[row - 1][col], validPos: true, xy: [row - 1, col] }
+    : { piece: undefined, validPos: false, xy: [row - 1, col] };
+  const eastPiece = validLocation(row + 1, col)
+    ? { piece: totalBoard[row + 1][col], validPos: true, xy: [row + 1, col] }
+    : { piece: undefined, validPos: false, xy: [row + 1, col] };
+  return [northPiece, southPiece, westPiece, eastPiece];
+}
+
+/**
+ * given a piece, it will add on connected pieces onto the array. This is a helper to see what liberties we have and also to see what pieces we may need to remove
+ * @param {Piece} piece - piece object that's going to get proceeded
+ * @param {Array} connectedPieces - current array of connected pieces
+ * @return {Array} connectedPieces – all the connected pieces related to this piece
  */
 function getConnected(piece, connectedPieces = []) {
   // adds the current piece to the array
@@ -119,43 +142,23 @@ function getConnected(piece, connectedPieces = []) {
   // grab the inital color of the first piece in the array
   const curColor = connectedPieces[0].color;
 
-  // process neighboring points: either will be the piece located at that location, or be undefined
+  // process neighboring points: either will be the piece located at that location, or be undefined. Gets the pieces in the cardinal directions.
   const { row } = piece;
   const { col } = piece;
-  const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
-  const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
-  const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
-  const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
+  const surPieces = getCardinal(row, col);
 
-  // if the piece is undefined, a different color, or already within our connected array, we don't want to add it to our array of connected pieces
-  if (
-    northPiece !== undefined &&
-    northPiece.color === curColor &&
-    !inArray(northPiece, connectedPieces)
-  ) {
-    getConnected(northPiece, connectedPieces);
-  }
-  if (
-    southPiece !== undefined &&
-    southPiece.color === curColor &&
-    !inArray(southPiece, connectedPieces)
-  ) {
-    getConnected(southPiece, connectedPieces);
-  }
-  if (
-    westPiece !== undefined &&
-    westPiece.color === curColor &&
-    !inArray(westPiece, connectedPieces)
-  ) {
-    getConnected(westPiece, connectedPieces);
-  }
-  if (
-    eastPiece !== undefined &&
-    eastPiece.color === curColor &&
-    !inArray(eastPiece, connectedPieces)
-  ) {
-    getConnected(eastPiece, connectedPieces);
-  }
+  // if the piece is undefined, a different color, or already within our connected array, we don't want to add it to our array of connected pieces. surPieceObj is the surrounding piece as an object
+  surPieces.forEach(surPieceObj => {
+    // gets the piece attribute of piece
+    const surPiece = surPieceObj.piece;
+    if (
+      surPiece !== undefined &&
+      surPiece.color === curColor &&
+      !inArray(surPiece, connectedPieces)
+    ) {
+      getConnected(surPiece, connectedPieces);
+    }
+  });
 
   return connectedPieces;
 }
@@ -176,41 +179,34 @@ function getLiberties(initialPiece) {
     // process neighboring points: either will be the piece located at that location, or be undefined
     const { row } = piece;
     const { col } = piece;
-    const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
-    const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
-    const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
-    const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
+    // get the surrounding pieces in cardinal directions
+    const surPieces = getCardinal(row, col);
 
-    // if this is an empty location, then we should put on it on our empty locations. This means that it's
-    // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
-    // equivalent of being 'empty'
-    if (northPiece === undefined && validLocation(row, col - 1)) {
-      liberties.push([row, col - 1]); // dummy information
-    }
-    if (southPiece === undefined && validLocation(row, col + 1)) {
-      liberties.push([row, col + 1]); // dummy information
-    }
-    if (westPiece === undefined && validLocation(row - 1, col)) {
-      liberties.push([row - 1, col]); // dummy information
-    }
-    if (eastPiece === undefined && validLocation(row + 1, col)) {
-      liberties.push([row + 1, col]); // dummy information
-    }
+    // if this is an empty location, then we should put on it on our empty locations. This means that it's both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist), the equivalent of being 'empty'
+    surPieces.forEach(surPieceObj => {
+      // gets the piece attribute of piece
+      const surPiece = surPieceObj.piece;
+      // gets if this is on the board–a valid direction
+      const validDirection = surPieceObj.validPos;
+      if (surPiece === undefined && validDirection) {
+        // if this is a valid location, pushes the xy location to the liberties array–making the length of liberties non-0 and therefore another space that the enemy piece needs to fill
+        liberties.push(surPieceObj.xy);
+      }
+    });
   });
   return liberties;
 }
 
-// This function gets the first piece, and then creates a queue of locations to check out
-/* Conditions for total removal:
+/* Note on Conditions for total removal:
   This color must be surrounded N S E W by other colors
   We need to keep on checking around us if we're bounded by pieces of the same color
   We should therefore search out the locations around us, and if they're the same color, 
   just keep on looking for where we're at
   Keep a stack full of IDs of pieces? Then we can do some math to figure out our bounds, and also
   Remove all of the necessary things
-  */
+*/
 /**
- *
+ * This function gets the first piece, and then creates a queue of locations to check out
  * @param {*} piece
  */
 function checkRemoval(piece) {
@@ -226,41 +222,24 @@ function checkRemoval(piece) {
   // process neighboring points: either will be the piece located at that location, or be undefined
   const { row } = piece;
   const { col } = piece;
-  const northPiece = validLocation(row, col - 1) ? totalBoard[row][col - 1] : undefined;
-  const southPiece = validLocation(row, col + 1) ? totalBoard[row][col + 1] : undefined;
-  const westPiece = validLocation(row - 1, col) ? totalBoard[row - 1][col] : undefined;
-  const eastPiece = validLocation(row + 1, col) ? totalBoard[row + 1][col] : undefined;
+
+  // gets the surroudning pieces in cardinal directions
+  const surPieces = getCardinal(row, col);
 
   // if this is an empty location, then we should put on it on our empty locations. This means that it's
   // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
-  if (northPiece !== undefined) {
-    if (northPiece.color !== curColor) {
-      if (!inArray(northPiece, capturedPieces) && getLiberties(northPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(northPiece, connectedPieces));
-      }
+  surPieces.forEach(surPieceObj => {
+    // Gets the piece value from the piece attribute of the surPiece object
+    const surPiece = surPieceObj.piece;
+    if (
+      surPiece !== undefined &&
+      surPiece.color !== curColor &&
+      !inArray(surPiece, capturedPieces) &&
+      getLiberties(surPiece).length === 0
+    ) {
+      capturedPieces = capturedPieces.concat(getConnected(surPiece, connectedPieces));
     }
-  }
-  if (southPiece !== undefined) {
-    if (southPiece.color !== curColor) {
-      if (!inArray(southPiece, capturedPieces) && getLiberties(southPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(southPiece, connectedPieces));
-      }
-    }
-  }
-  if (westPiece !== undefined) {
-    if (westPiece.color !== curColor) {
-      if (!inArray(westPiece, capturedPieces) && getLiberties(westPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(westPiece, connectedPieces));
-      }
-    }
-  }
-  if (eastPiece !== undefined) {
-    if (eastPiece.color !== curColor) {
-      if (!inArray(eastPiece, capturedPieces) && getLiberties(eastPiece).length === 0) {
-        capturedPieces = capturedPieces.concat(getConnected(eastPiece, connectedPieces));
-      }
-    }
-  }
+  });
 
   return capturedPieces;
 }

@@ -17,7 +17,8 @@
     "prettier": "^1.17.1"
   },
   "scripts": {
-    "lint": "eslint src -c .eslintrc.json --ext js,jsx"
+    "lint": "eslint src -c .eslintrc.json --ext js,jsx",
+    "dev": "http-server -c-1"
   },
   "repository": {
     "type": "git",

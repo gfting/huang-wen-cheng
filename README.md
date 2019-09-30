@@ -19,7 +19,7 @@ The resources at [Masters of Games](https://www.mastersofgames.com/rules/go-rule
 
 ## Dev setup
 
-You can 'git clone' this project, or check out a live demo in the link above. If you want to try hacking on it, you can do 'npm i' and then 'http-server -c-1' for a live reload local server.
+You can `git clone` this project, or check out a live demo in the link above. If you want to try hacking on it, you can do `npm i` and then `npm run dev` for a live reload local server.
 
 Linting: just run 'npm run lint'.
 
@@ -29,7 +29,7 @@ Coming soon with screenshots from the game!
 
 ## Future Features
 
-### MVP 1:
+### MVP 1 [DONE]
 
 - Toggle placing black/white pieces
 - Display whose turn it is
@@ -65,6 +65,7 @@ Coming soon with screenshots from the game!
 - add a highlighter for most recent move
 - utilize game states. honestly, this will require a full rewrite, I think
 - Just rewrite the whole thing utilizing React. There are some cases that my current implementation just doens't work for
+- Add some kind of registration
 - Add on a testing suite
 
 
