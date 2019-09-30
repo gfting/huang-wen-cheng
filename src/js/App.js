@@ -114,19 +114,28 @@ function emptyCaptured(capturedPieces) {
  * @return {Array} – as stated above, an array with JSON objects corresponding to the piece, if it's a valid location as a boolean, and the row/col location of the piece. Respectively named piece, validPos, and xy.
  */
 function getCardinal(row, col) {
-  const northPiece = validLocation(row, col - 1)
-    ? { piece: totalBoard[row][col - 1], validPos: true, xy: [row, col - 1] }
-    : { piece: undefined, validPos: false, xy: [row, col - 1] };
-  const southPiece = validLocation(row, col + 1)
-    ? { piece: totalBoard[row][col + 1], validPos: true, xy: [row, col + 1] }
-    : { piece: undefined, validPos: false, xy: [row, col + 1] };
-  const westPiece = validLocation(row - 1, col)
-    ? { piece: totalBoard[row - 1][col], validPos: true, xy: [row - 1, col] }
-    : { piece: undefined, validPos: false, xy: [row - 1, col] };
-  const eastPiece = validLocation(row + 1, col)
-    ? { piece: totalBoard[row + 1][col], validPos: true, xy: [row + 1, col] }
-    : { piece: undefined, validPos: false, xy: [row + 1, col] };
-  return [northPiece, southPiece, westPiece, eastPiece];
+  // the directions that will change row and col
+  const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+
+  // function that takes in the position array and then generates an object from it
+  function createPieceObject(posArr) {
+    const thisRow = posArr[0];
+    const thisCol = posArr[1];
+    return validLocation(thisRow, thisCol)
+      ? { piece: totalBoard[thisRow][thisCol], validPos: true, xy: [thisRow, thisCol] }
+      : { piece: undefined, validPos: false, xy: [thisRow, thisCol] };
+  }
+
+  // array to hold the pieces that will be returned
+  const cardinalPieces = [];
+
+  // for each direction, creates the object and then pushes it to the cardinalPieces array
+  dirs.forEach(dir => {
+    const posArr = [row + dir[0], col + dir[1]];
+    cardinalPieces.push(createPieceObject(posArr));
+  });
+
+  return cardinalPieces;
 }
 
 /**
