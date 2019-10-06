@@ -1,4 +1,4 @@
-// class based structure for piece FIXME
+// class based structure for piece
 import Piece from './Piece.js';
 // Starts off the game with player that goes first
 let currentPlayer = 'black';
@@ -14,10 +14,10 @@ const numLines = 19; // original style of board
 const spacing = (boardWidth - boardFullOffset) / (numLines - 1); // calculates spacing between columns
 const pieceSize = 15;
 const pieceOffset = pieceSize / 2; // need to shift up by half the piece offset
-let blackScore = 0;
+let blackScore = 0; // starting score for black
 let whiteScore = 0;
 
-// Create 2-D array to hold all objects, which will be either pieces or undefined
+// 2-D array to hold all objects, which will be either pieces or undefined
 const totalBoard = [numLines];
 for (let i = 0; i < numLines; i += 1) {
   totalBoard[i] = [numLines];
@@ -35,6 +35,7 @@ function togglePlayer() {
  * Derives the row and column of the xpos and ypos input based on spacing and height of the goBoard div
  * @param {Number} xpos the x position within the object
  * @param {Number} ypos the y position within the object
+ * @return {JSON} an object with row and col in it
  */
 // generates row and column based on input xpos and ypos
 function genRowCol(xpos, ypos) {
@@ -46,13 +47,16 @@ function genRowCol(xpos, ypos) {
 
 /**
  * Finds the coordinates within the goBoard div, and then writes those coords to the objectCoords div
- * Utilized as actively writing on mouse move
- * @param {mouseEvent} e mouseevent that executes the function
+ * Called on active mouse move, writes to the screen
+ * @param {mouseEvent} e mouseEvent that executes the function
  */
 function getPosition(e) {
+  // Finds the current x/y distance from the edges of the board
   const x = e.clientX - boardPositionInfo.left;
   const y = e.clientY - boardPositionInfo.top;
+  // Writes the coordinates to the page
   document.getElementById('objectCoords').innerHTML = `Current coordinates:<br>${x}, ${y}`;
+  // Gets the grid position and then writes it back to the page
   const grid = genRowCol(x, y);
   document.getElementById('pieceRowCol').innerHTML = `Board Location:<br>row:${grid.row}, col:${
     grid.col
@@ -66,7 +70,7 @@ function getPosition(e) {
 }
 
 /**
- * Given a row and column, this helper function returns if they fit on board
+ * Given a row and column, this helper function returns if they should be valid locations on the board
  * @param {Number} row – y axis row
  * @param {Number} col – x axis col
  */
@@ -75,7 +79,7 @@ function validLocation(row, col) {
 }
 
 /**
- * returns true if the piece is found in the array
+ * helper function that returns true if the piece is in the array, false if not
  * @param {Piece} piece - piece to be checked if in array
  * @param {Array} array - array that piece will be checked again
  */
@@ -90,7 +94,7 @@ function inArray(piece, array) {
 }
 
 /**
- * removes all elements in the explored queue
+ * removes all elements from the page in the explored queue utilizing each piece's pieceID
  * @param {Array} capturedPieces - all pieces that will need to be removed
  */
 function emptyCaptured(capturedPieces) {
@@ -117,7 +121,7 @@ function getCardinal(row, col) {
   // the directions that will change row and col
   const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 
-  // function that takes in the position array and then generates an object from it
+  // function that takes in the position array and then generates an object from it with the piece, if it's a valid location, and the row/col position of cardinal direction.
   function createPieceObject(posArr) {
     const thisRow = posArr[0];
     const thisCol = posArr[1];
@@ -151,12 +155,12 @@ function getConnected(piece, connectedPieces = []) {
   // grab the inital color of the first piece in the array
   const curColor = connectedPieces[0].color;
 
-  // process neighboring points: either will be the piece located at that location, or be undefined. Gets the pieces in the cardinal directions.
+  // process neighboring points: either will be the piece located at that location, or be undefined. Gets the pieces in the cardinal directions based on the current row and column
   const { row } = piece;
   const { col } = piece;
   const surPieces = getCardinal(row, col);
 
-  // if the piece is undefined, a different color, or already within our connected array, we don't want to add it to our array of connected pieces. surPieceObj is the surrounding piece as an object
+  // if the piece is undefined, a different color, or already within our connected array, we don't want to add it to our array of connected pieces as it isn't part of our connected body. surPieceObj is the surrounding piece as an object coming back from the getCardinal function
   surPieces.forEach(surPieceObj => {
     // gets the piece attribute of piece
     const surPiece = surPieceObj.piece;
@@ -165,6 +169,7 @@ function getConnected(piece, connectedPieces = []) {
       surPiece.color === curColor &&
       !inArray(surPiece, connectedPieces)
     ) {
+      // recursively grab all of pieces connected to the surrounding pieces
       getConnected(surPiece, connectedPieces);
     }
   });
@@ -173,11 +178,12 @@ function getConnected(piece, connectedPieces = []) {
 }
 
 /**
- * Finds all the empty spaces that need to be filled for this piece
+ * Finds all the empty spaces that need to be filled for this piece to be removed, aka the liberties. If the length of liberties === 0, then we know that the piece that got passed in should be removed.
  * @param {Piece} initialPiece - the first piece that will be proceeded to find liberties
+ * @return {Array[Piece]} liberties – returns the empty cardinal locations around initialPiece that need to be filled in order for the initalPiece to be removed
  */
 function getLiberties(initialPiece) {
-  // grabs array of pieces connected to this piece
+  // grabs array of all pieces connected to this piece of the same color
   const connectedPieces = getConnected(initialPiece);
 
   // initializes liberties
@@ -195,10 +201,12 @@ function getLiberties(initialPiece) {
     surPieces.forEach(surPieceObj => {
       // gets the piece attribute of piece
       const surPiece = surPieceObj.piece;
+
       // gets if this is on the board–a valid direction
       const validDirection = surPieceObj.validPos;
+
+      // if this is a valid location, pushes the xy location to the liberties array–making the length of liberties non-0 and therefore another space that the enemy piece needs to fill
       if (surPiece === undefined && validDirection) {
-        // if this is a valid location, pushes the xy location to the liberties array–making the length of liberties non-0 and therefore another space that the enemy piece needs to fill
         liberties.push(surPieceObj.xy);
       }
     });
@@ -206,17 +214,14 @@ function getLiberties(initialPiece) {
   return liberties;
 }
 
-/* Note on Conditions for total removal:
-  This color must be surrounded N S E W by other colors
-  We need to keep on checking around us if we're bounded by pieces of the same color
-  We should therefore search out the locations around us, and if they're the same color, 
-  just keep on looking for where we're at
-  Keep a stack full of IDs of pieces? Then we can do some math to figure out our bounds, and also
-  Remove all of the necessary things
-*/
 /**
- * This function gets the first piece, and then creates a queue of locations to check out
- * @param {*} piece
+ * This function gets the first piece, and then searches all of the surrounding locations around that piece to see if it can potentially remove a piece
+ * Note on Conditions for total removal:
+ * This color must be surrounded N S E W by other colors
+ * We need to keep on checking around us if we're bounded by pieces of the same color. We should therefore search out the locations around us, and if they're the same color, just keep on looking for where we're at.
+ * Keep a stack full of IDs of pieces would allow us to figure out our bounds, and also remove all of the necessary things on return
+ * @param {Piece} piece
+ * @return {Array[Pieces]} all of the pieces
  */
 function checkRemoval(piece) {
   // array of pieces that are captured with this piece's placement
@@ -235,8 +240,7 @@ function checkRemoval(piece) {
   // gets the surroudning pieces in cardinal directions
   const surPieces = getCardinal(row, col);
 
-  // if this is an empty location, then we should put on it on our empty locations. This means that it's
-  // both undefined (no piece exists there), and it's on the board (i.e. not something that completely doesn't exist)
+  // If the surroudning piece isn't undefined, it isn't the same color, and it isn't in our array of pieces, and the call to getLiberties is 0, that means that the surrounding piece is completely blocked in and should be added to our capturedPieces array.
   surPieces.forEach(surPieceObj => {
     // Gets the piece value from the piece attribute of the surPiece object
     const surPiece = surPieceObj.piece;
@@ -246,10 +250,10 @@ function checkRemoval(piece) {
       !inArray(surPiece, capturedPieces) &&
       getLiberties(surPiece).length === 0
     ) {
+      // The call to capturedPieces makes sure that we grab all of the pieces directly connected to the surrounding piece so that we can remove all of them at once.
       capturedPieces = capturedPieces.concat(getConnected(surPiece, connectedPieces));
     }
   });
-
   return capturedPieces;
 }
 
