@@ -4,7 +4,7 @@
   "description": "Package for writing online Go game",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
